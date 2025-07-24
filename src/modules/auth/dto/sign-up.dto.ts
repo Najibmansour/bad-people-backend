@@ -1,11 +1,24 @@
-import { IsEmail, IsString, Matches, Max, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class SignUpDto {
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(32)
   username: string;
 
+  @IsNotEmpty()
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     {

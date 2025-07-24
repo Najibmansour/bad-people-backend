@@ -14,17 +14,20 @@ export class UsersService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    const crypted_password = bcrypt.hash(createUserDto.password, 10);
+  async create(createUserDto: CreateUserDto) {
+    const crypted_password = await bcrypt.hash(createUserDto.password, 10);
 
     const user: CreateUserDto = {
       ...createUserDto,
       password: crypted_password,
     };
-    return this.userRepo.create(user);
+    const added_user = this.userRepo.create(user);
+    console.log(added_user);
+
+    return await this.userRepo.save(added_user);
   }
 
-  async findOneById(id: number) {
+  async findOneById(id: string) {
     const test = await this.userRepo.findOne({ where: { id } });
     console.log(test);
 

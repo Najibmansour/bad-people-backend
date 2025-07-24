@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 
 import { JwtService } from '@nestjs/jwt';
@@ -14,7 +18,7 @@ export class AuthService {
     private jwtServ: JwtService,
   ) {}
 
-  async validateUser(user: CreateUserDto) {
+  async validateUser(user: SignInDto) {
     const is_valid = await this.userServ.validateUser(
       user.email,
       user.password,
@@ -24,6 +28,12 @@ export class AuthService {
   }
 
   async signin(user: SignInDto) {
+    // if (!user || !user.email || !user.password || !user.username) {
+    //   throw new BadRequestException(
+    //     'Email, Username and password are required',
+    //   );
+    // }
+
     this.validateUser(user);
     const payload = { username: user.email };
     return {
@@ -32,14 +42,34 @@ export class AuthService {
   }
 
   async signup(userinfo: SignUpDto) {
-    const user_exists = await this.userServ.findByEmail(userinfo.email);
-    if (!user_exists) {
-      const user = this.userServ.create(userinfo);
+    // if (
+    //   !userinfo ||
+    //   !userinfo.email ||
+    //   !userinfo.password ||
+    //   !userinfo.username
+    // ) {
+    //   throw new BadRequestException(
+    //     'Email, Username and password are required',
+    //   );
+    // }
 
-      const payload = { username: user.email };
-      return {
-        access_token: this.jwtServ.sign(payload),
-      };
+    const email_used = await this.userServ.findByEmail(userinfo.email);
+
+    if (email_used) {
+      throw new BadRequestException('Email already used');
     }
+
+    const username_used = await this.userServ.findByEmail(userinfo.email);
+
+    if (username_used) {
+      throw new BadRequestException('User is taken');
+    }
+
+    const user = await this.userServ.create(userinfo);
+
+    const payload = { username: user.email };
+    return {
+      access_token: this.jwtServ.sign(payload),
+    };
   }
 }
