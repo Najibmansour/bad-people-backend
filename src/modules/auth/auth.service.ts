@@ -10,6 +10,7 @@ import { User } from '../users/entities/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
+import { getUserFromToken } from 'src/utils/user/getUserRow';
 
 @Injectable()
 export class AuthService {
@@ -27,34 +28,19 @@ export class AuthService {
     return is_valid;
   }
 
-  async signin(user: SignInDto) {
-    // if (!user || !user.email || !user.password || !user.username) {
-    //   throw new BadRequestException(
-    //     'Email, Username and password are required',
-    //   );
-    // }
-
-    this.validateUser(user);
-    const payload = { username: user.email };
+  async signin(user_info: SignInDto) {
+    const user = await this.validateUser(user_info);
+    const payload = { username: user.username, id: user.id };
     return {
       access_token: this.jwtServ.sign(payload),
     };
   }
 
   async signup(userinfo: SignUpDto) {
-    // if (
-    //   !userinfo ||
-    //   !userinfo.email ||
-    //   !userinfo.password ||
-    //   !userinfo.username
-    // ) {
-    //   throw new BadRequestException(
-    //     'Email, Username and password are required',
-    //   );
-    // }
-
     const email_used = await this.userServ.findByEmail(userinfo.email);
-
+    getUserFromToken(
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hamliMiIsImlkIjoiYTEwZmEwZWUtN2RkMi00MjE0LTkyY2EtMmZiYWEzZDc1MjkzIiwiaWF0IjoxNzUzNDg2MjQyfQ.jbBQYfdWet-pivJjC8TDd8nsdjirobMAgm8rDMzf0uA',
+    );
     if (email_used) {
       throw new BadRequestException('Email already used');
     }
@@ -67,7 +53,7 @@ export class AuthService {
 
     const user = await this.userServ.create(userinfo);
 
-    const payload = { username: user.email };
+    const payload = { username: user.username, id: user.id };
     return {
       access_token: this.jwtServ.sign(payload),
     };

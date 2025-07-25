@@ -22,14 +22,11 @@ export class UsersService {
       password: crypted_password,
     };
     const added_user = this.userRepo.create(user);
-    console.log(added_user);
-
     return await this.userRepo.save(added_user);
   }
 
   async findOneById(id: string) {
     const test = await this.userRepo.findOne({ where: { id } });
-    console.log(test);
 
     return test;
   }

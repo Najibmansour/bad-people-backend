@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { User } from './modules/users/entities/user.entity';
 import { RoomsModule } from './modules/rooms/rooms.module';
+import { Room } from './modules/rooms/entities/room.entity';
 
 @Module({
   imports: [
@@ -23,8 +24,8 @@ import { RoomsModule } from './modules/rooms/rooms.module';
         password: config.get('DB_PASS'),
         database: config.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true, // Disable in production!
-        entities: [User],
+        synchronize: false, // Disable in production!
+        entities: [User, Room],
       }),
     }),
     AuthModule,
