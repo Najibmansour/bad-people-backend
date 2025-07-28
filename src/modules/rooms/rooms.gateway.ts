@@ -50,6 +50,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user_info = getUserFromToken(getTokenFromClient(client));
 
     const user = this.userRepo.findOne({ where: { id: user_info.id } });
+
     return user;
   }
 
