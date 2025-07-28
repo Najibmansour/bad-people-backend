@@ -38,9 +38,9 @@ export class AuthService {
 
   async signup(userinfo: SignUpDto) {
     const email_used = await this.userServ.findByEmail(userinfo.email);
-    getUserFromToken(
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hamliMiIsImlkIjoiYTEwZmEwZWUtN2RkMi00MjE0LTkyY2EtMmZiYWEzZDc1MjkzIiwiaWF0IjoxNzUzNDg2MjQyfQ.jbBQYfdWet-pivJjC8TDd8nsdjirobMAgm8rDMzf0uA',
-    );
+    // getUserFromToken(
+    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hamliIiwiaWQiOiJfWlZ4dm0yWiIsImlhdCI6MTc1MzU0MDQ5MH0.GUDGeT1sm8LDjRJBhpKZHnOoLjZVcTdcKgGljy6HgX8',
+    // );
     if (email_used) {
       throw new BadRequestException('Email already used');
     }

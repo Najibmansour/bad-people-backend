@@ -14,7 +14,7 @@ import { Room } from './modules/rooms/entities/room.entity';
     UsersModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule.forRoot({ isGlobal: true })],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres', // or 'mysql', 'sqlite'

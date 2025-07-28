@@ -27,7 +27,4 @@ export class CreateRoomDto {
   @Min(10)
   @Max(99)
   maxRounds: number; // Between 10 and 99
-
-  @IsOptional()
-  status?: GameStatus = GameStatus.WAITING; // Default: WAITING
 }
