@@ -66,3 +66,28 @@ export function getTokenFromClient(client: Socket): string | null {
     return null;
   }
 }
+
+export function getTokenFromAuthHeader(auth: string): string | null {
+  try {
+    const authHeader = auth;
+
+    // No Authorization header
+    if (!authHeader) {
+      return null;
+    }
+
+    // Must start with "Bearer "
+    if (!authHeader.startsWith('Bearer ')) {
+      return null;
+    }
+
+    // Extract token part
+    const token = authHeader.split(' ')[1];
+
+    return token || null;
+  } catch (err) {
+    // Handle unexpected handshake format
+    console.error('Error extracting token from client:', err);
+    return null;
+  }
+}

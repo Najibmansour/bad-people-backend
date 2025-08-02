@@ -12,8 +12,17 @@ export class RoomsService {
     private readonly roomRepo: Repository<Room>,
   ) {}
 
-  create(createRoomDto: CreateRoomDto) {
-    const room = this.roomRepo.create(createRoomDto);
+  create(
+    createRoomDto: CreateRoomDto,
+    user: { id: string; username: string; iat: number },
+  ) {
+    console.log(user);
+
+    // add room name if doesnt exist
+    if (createRoomDto.name === undefined)
+      createRoomDto.name = `${user.username}'s room`;
+
+    const room = this.roomRepo.create({ ...createRoomDto });
 
     return this.roomRepo.save(room);
   }

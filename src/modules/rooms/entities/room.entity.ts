@@ -1,4 +1,5 @@
-import { nanoid } from 'nanoid';
+import { customAlphabet, nanoid } from 'nanoid';
+import { UID_CHARACTERS } from 'src/constants/app.constants';
 import { User } from 'src/modules/users/entities/user.entity';
 import {
   BeforeInsert,
@@ -25,10 +26,15 @@ export enum RoundTime {
   THIRTY_SECONDS = 30,
 }
 
+const generateCode = customAlphabet(UID_CHARACTERS, 8);
+
 @Entity({ name: 'rooms' })
 export class Room {
-  @PrimaryColumn({ type: 'varchar', length: 8 })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  name: string;
 
   @Column({ unique: true })
   code: string;
@@ -50,12 +56,11 @@ export class Room {
   @Column({ type: 'int', default: 8 })
   maxPlayers: number;
 
-  @Column({ type: 'int', default: 10 })
-  maxRounds: number;
-
   @OneToMany(() => User, (user) => user.room, { cascade: true })
   players: User[];
 
+  @Column({ type: 'int', default: 10 })
+  maxRounds: number;
   @Column({
     type: 'enum',
     enum: RoundTime,
@@ -71,7 +76,6 @@ export class Room {
 
   @BeforeInsert()
   generateId() {
-    this.id = nanoid(8); // Generates a 8-character unique ID
-    this.code = nanoid(8);
+    this.code = generateCode();
   }
 }

@@ -12,7 +12,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsJwtGuard } from '../auth/jwt-auth.strategy';
 import {
   getTokenFromClient,
@@ -23,6 +23,7 @@ import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 import { User } from '../users/entities/user.entity';
 
+@UsePipes(new ValidationPipe({ whitelist: true }))
 @WebSocketGateway(3002, {
   cors: {
     origin: '*', // or specify your frontend URL
@@ -43,15 +44,17 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('createRoom')
-  create(
+  async create(
     @ConnectedSocket() client: Socket,
     @MessageBody() createRoomDto: CreateRoomDto,
   ) {
     const user_info = getUserFromToken(getTokenFromClient(client));
-
     const user = this.userRepo.findOne({ where: { id: user_info.id } });
 
-    return user;
+    const room = this.roomRepo.create(createRoomDto);
+    // await this.roomRepo.save(room);
+
+    return room;
   }
 
   @SubscribeMessage('findAllRooms')
