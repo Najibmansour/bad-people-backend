@@ -73,7 +73,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('removeRoom')
-  remove(@MessageBody() id: number) {
+  remove(@MessageBody() id: string) {
     return this.roomsService.remove(id);
   }
 }

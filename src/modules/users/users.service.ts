@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
+import { Room } from '../rooms/entities/room.entity';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +38,15 @@ export class UsersService {
 
   deleteById(id: number) {
     return this.userRepo.delete(id);
+  }
+
+  async updateUserRoom(userId: string, room: Room) {
+    const user = await this.findOneById(userId);
+    if (user) {
+      user.room = room;
+      return this.userRepo.save(user);
+    }
+    return null;
   }
 
   async findByEmail(email: string): Promise<User | undefined | null> {
