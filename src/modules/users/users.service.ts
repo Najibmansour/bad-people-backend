@@ -27,7 +27,10 @@ export class UsersService {
   }
 
   async findOneById(id: string) {
-    const test = await this.userRepo.findOne({ where: { id } });
+    const test = await this.userRepo.findOne({
+      where: { id },
+      relations: ['room'],
+    });
 
     return test;
   }
@@ -42,9 +45,12 @@ export class UsersService {
 
   async updateUserRoom(userId: string, room: Room) {
     const user = await this.findOneById(userId);
+
     if (user) {
       user.room = room;
-      return this.userRepo.save(user);
+      await this.userRepo.save(user);
+
+      return this.findOneById(userId);
     }
     return null;
   }

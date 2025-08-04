@@ -1,6 +1,10 @@
 import { Room } from 'src/modules/rooms/entities/room.entity';
 import { UsersService } from './../users/users.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,23 +25,36 @@ export class RoomsService {
     //check if user has an alreayd created room
     const user = await this.userServ.findOneById(user_payload.id);
 
-    console.log('room ', user?.room);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
-    if (user && user.room !== undefined)
+    console.log(user);
+
+    if (user && user.room !== null) {
       throw new BadRequestException('User already has a room');
+    }
 
     // add room name if doesnt exist
     if (createRoomDto.name === undefined)
       createRoomDto.name = `${user_payload.username}'s room`;
 
     // create room
-    const room = this.roomRepo.create({ ...createRoomDto });
+    const room = this.roomRepo.create({
+      ...createRoomDto,
+      hostUser: user,
+      players: [user],
+    });
 
-    if (user && user.room === undefined) {
-      this.userServ.updateUserRoom(user.id, room);
+    const newRoom = await this.roomRepo.save(room);
+
+    if (user && user.room === null) {
+      const test = await this.userServ.updateUserRoom(user.id, room);
+
+      console.log(test);
     }
 
-    return this.roomRepo.save(room);
+    return newRoom;
   }
 
   findAll() {

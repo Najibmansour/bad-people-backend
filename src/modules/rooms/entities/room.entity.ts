@@ -41,7 +41,7 @@ export class Room {
 
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'host_user_id' })
-  hostUser: User;
+  hostUser: User | null;
 
   @Column({
     type: 'enum',

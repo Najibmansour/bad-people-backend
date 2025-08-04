@@ -1,5 +1,6 @@
 import { JwtStrategy } from './../auth/jwt.startegy';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,6 +9,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Request,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -23,11 +25,13 @@ import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 import { User } from '../users/entities/user.entity';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { UsersService } from '../users/users.service';
 
 @Controller('room')
 export class RoomController {
   constructor(
     private readonly roomsService: RoomsService,
+    private readonly usersService: UsersService,
     @InjectRepository(Room) public readonly roomRepo: Repository<Room>,
     @InjectRepository(User) public readonly userRepo: Repository<User>,
   ) {}
@@ -44,20 +48,20 @@ export class RoomController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  fetchAllRooms(
-    @Headers('Authorization') auth: string,
-    @Body() data: CreateRoomDto,
-  ) {
-    // const user = getUserFromToken(getTokenFromAuthHeader(auth));
-    // if (!user) throw UnauthorizedException;
-    // return this.roomsService.findAll();
+  fetchAllRooms() {
+    return this.roomsService.findAll();
   }
 
-  @Delete(':id')
-  async deleteRoom(@Param('id') id: string) {
-    const result = await this.roomsService.remove(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+  @Delete('')
+  @UseGuards(JwtAuthGuard)
+  async deleteRoom(@Request() req) {
+    const user = await this.usersService.findOneById(req.user.userId);
+    console.log(user);
+
+    const roomId = user?.room?.id;
+    if (roomId === undefined) {
+      throw new BadRequestException('User has no room');
     }
+    const result = await this.roomsService.remove(roomId);
   }
 }
